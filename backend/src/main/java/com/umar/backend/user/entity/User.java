@@ -3,6 +3,7 @@ package com.umar.backend.user.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.hibernate.validator.constraints.Length;
 
 @Entity
 @Getter
@@ -19,7 +20,6 @@ public class User {
     @Column(nullable = false, unique = false)
     private String username;
 
-    @Size(min = 6, max = 20)
     private String password;
 
     @Column(nullable = false, unique = true)
