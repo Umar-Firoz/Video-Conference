@@ -41,6 +41,10 @@ public class SecurityConfig {
                         auth->auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                 .requestMatchers("/auth/**").permitAll()
                                 .requestMatchers("/user/**").authenticated()
+                                .requestMatchers("/user/**").authenticated()
+                                .requestMatchers("/meeting/**").authenticated()
+                                .requestMatchers("/participant/**").authenticated()
+                                .requestMatchers("/message/**").authenticated()
                                 .anyRequest().authenticated())
                 .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(ex->ex.authenticationEntryPoint(authEntryPoint));
