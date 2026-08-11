@@ -1,9 +1,12 @@
 package com.umar.backend.user.entity;
 
+import com.umar.backend.meeting.entity.Meeting;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -22,6 +25,9 @@ public class User {
 
     private String password;
 
+    @OneToMany(mappedBy = "createdBy")
+    private List<Meeting> createdMeetings;
+    
     @Column(nullable = false, unique = true)
     private String email;
 
