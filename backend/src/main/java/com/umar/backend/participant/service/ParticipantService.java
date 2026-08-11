@@ -4,12 +4,14 @@ import com.umar.backend.common.enums.ParticipantRole;
 import com.umar.backend.common.util.CurrentUser;
 import com.umar.backend.meeting.entity.Meeting;
 import com.umar.backend.meeting.repository.MeetingRepository;
+import com.umar.backend.participant.dto.ParticipantEventDTO;
 import com.umar.backend.participant.dto.ParticipantResponseDTO;
 import com.umar.backend.participant.entity.MeetingParticipant;
 import com.umar.backend.participant.repository.ParticipantRepository;
 import com.umar.backend.user.entity.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,6 +24,7 @@ public class ParticipantService {
     private final ParticipantRepository participantRepository;
     private final MeetingRepository meetingRepository;
     private final CurrentUser currentUser;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional
     public ParticipantResponseDTO join(String code) {
@@ -59,6 +62,12 @@ public class ParticipantService {
         response.setJoinedAt(saved.getJoinedAt());
         response.setLeftAt(saved.getLeftAt());
 
+        ParticipantEventDTO event = new ParticipantEventDTO(
+                "JOINED",
+                user.getId(),
+                user.getUsername());
+
+        messagingTemplate.convertAndSend("/topic/meeting/" + code + "/participants", event);
         return response;
     }
     public void leave(String code) {
@@ -71,6 +80,13 @@ public class ParticipantService {
                         .orElseThrow(() -> new RuntimeException("User is not a participant of this meeting"));
         participant.setLeftAt(LocalDateTime.now());
         participantRepository.save(participant);
+
+        ParticipantEventDTO event = new ParticipantEventDTO(
+                "LEFT",
+                user.getId(),
+                user.getUsername());
+
+        messagingTemplate.convertAndSend("/topic/meeting/" + code + "/participants", event);
     }
 
     public List<ParticipantResponseDTO> getParticipants(String code) {
@@ -78,6 +94,8 @@ public class ParticipantService {
         Meeting meeting = meetingRepository.findByCode(code).orElseThrow(() -> new RuntimeException("Meeting not found"));
 
         List<MeetingParticipant> participants = participantRepository.findByMeetingId(meeting.getId());
+
+
 
         return participants.stream()
                 .map(participant -> {
