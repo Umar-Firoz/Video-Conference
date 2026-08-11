@@ -1,5 +1,6 @@
 package com.umar.backend.meeting.entity;
 
+import com.umar.backend.participant.entity.MeetingParticipant;
 import com.umar.backend.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -28,6 +30,9 @@ public class Meeting {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
+
+    @OneToMany(mappedBy = "meeting")
+    private List<MeetingParticipant> participants;
 
     private LocalDateTime startTime;
 
